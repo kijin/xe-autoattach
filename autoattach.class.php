@@ -10,7 +10,8 @@ class XEAutoAttachAddon
 	/**
 	 * Set the timeout for remote requests.
 	 */
-	protected static $timeout = 2;
+	protected static $image_timeout = 2;
+	protected static $total_timeout = 20;
 	
 	/**
 	 * Set addon configuration.
@@ -211,7 +212,8 @@ class XEAutoAttachAddon
 	 */
 	protected static function replaceImages(&$content, $images, $module_srl, $target_srl)
 	{
-		// Count successful replacements.
+		// Count the time and the number of successful replacements.
+		$start_time = microtime(true);
 		$count = 0;
 		
 		// Loop over all images.
@@ -219,7 +221,7 @@ class XEAutoAttachAddon
 		{
 			// Attempt to download the image.
 			$temp_path = _XE_PATH_ . 'files/cache/autoattach/' . md5($image_info['image_url'] . microtime() . mt_rand());
-			$status = FileHandler::getRemoteFile($image_info['image_url'], $temp_path, null, self::$timeout);
+			$status = FileHandler::getRemoteFile($image_info['image_url'], $temp_path, null, self::$image_timeout);
 			if (!$status)
 			{
 				FileHandler::removeFile($temp_path);
@@ -249,6 +251,12 @@ class XEAutoAttachAddon
 			$new_tag = str_replace($image_info['image_url_html'], htmlspecialchars($uploaded_filename), $image_info['full_tag']);
 			$content = str_replace($image_info['full_tag'], $new_tag, $content);
 			$count++;
+			
+			// If this is taking too long, stop now and try again later.
+			if (microtime(true) - $start_time > self::$total_timeout)
+			{
+				break;
+			}
 		}
 		
 		// Update all files to be valid.
@@ -266,7 +274,7 @@ class XEAutoAttachAddon
 	 */
 	protected static function cleanFilename($filename)
 	{
-		if (preg_match('@[^\\\\/\\?=]+\.(gif|jpe?g|png|bmp|svg)\b@i', $filename, $matches))
+		if (preg_match('@[^\\\\/\\?=]+\.(gif|jpe?g|png|bmp|svg)\b@i', urldecode($filename), $matches))
 		{
 			return $matches[0];
 		}
