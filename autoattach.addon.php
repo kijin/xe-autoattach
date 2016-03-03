@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @file autoattach.addon.php
+ * @author Kijin Sung <kijin@kijinsung.com>
+ * @license GPLv2 or Later <https://www.gnu.org/licenses/gpl-2.0.html>
+ * 
+ * This addon automatically finds unattached images in documents and comments
+ * and converts them into real attachments. This can be useful because
+ * many users cannot distinguish between external images and real attachments,
+ * but the website administrator must be careful because self-hosting all
+ * images may result in copyright infringement.
+ */
 if (!defined('__XE__')) exit();
 
 /**
