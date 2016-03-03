@@ -89,6 +89,16 @@ class XEAutoAttachAddon
 			$oDB->rollback();
 			return false;
 		}
+		if (!$get_fresh_object)
+		{
+			$oCachedDocument->add('content', $content);
+			$oCachedDocument->add('uploaded_count', $oDocument->uploaded_count + $count);
+			$oCacheHandler = CacheHandler::getInstance('object');
+			if($oCacheHandler->isSupport())
+			{
+				$oCacheHandler->delete('document_item:' . getNumberingPath($document_srl) . $document_srl);
+			}
+		}
 		
 		// Commit!
 		$oDB->commit();
