@@ -1,0 +1,14 @@
+<query id="getDocument" action="select">
+    <tables>
+        <table name="documents" />
+    </tables>
+    <columns>
+    	<column name="document_srl" />
+    	<column name="module_srl" />
+        <column name="content" />
+        <column name="uploaded_count" />
+    </columns>
+    <conditions>
+        <condition operation="equal" column="document_srl" var="document_srl" />
+    </conditions>
+</query>

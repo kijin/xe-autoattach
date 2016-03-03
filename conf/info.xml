@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon version="0.2">
+    <title xml:lang="ko">이미지 자동 첨부 애드온</title>
+    <title xml:lang="en">Auto-Attach Images</title>
+    <description xml:lang="ko">첨부하지 않은 이미지가 문서나 댓글에 포함되어 있을 경우 첨부파일로 자동 변환합니다.</description>
+    <description xml:lang="en">Automatically attach images referenced in documents and comments.</description>
+    <version>1.0</version>
+    <date>2016-03-03</date>
+    <author email_address="kijin@kijinsung.com" link="https://github.com/kijin">
+        <name xml:lang="ko">Kijin Sung</name>
+        <name xml:lang="en">Kijin Sung</name>
+    </author>
+    <extra_vars>
+		<var name="new_documents" type="select">
+			<title xml:lang="ko">새 문서에 적용</title>
+			<title xml:lang="en">Apply to new documents</title>
+			<options value="Y">
+				<title xml:lang="ko">예</title>
+				<title xml:lang="en">Yes</title>
+			</options>
+			<options value="N">
+				<title xml:lang="ko">아니오</title>
+				<title xml:lang="en">No</title>
+			</options>
+		</var>
+		<var name="new_comments" type="select">
+			<title xml:lang="ko">새 댓글에 적용</title>
+			<title xml:lang="en">Apply to new comments</title>
+			<options value="Y">
+				<title xml:lang="ko">예</title>
+				<title xml:lang="en">Yes</title>
+			</options>
+			<options value="N">
+				<title xml:lang="ko">아니오</title>
+				<title xml:lang="en">No</title>
+			</options>
+		</var>
+		<var name="old_documents" type="select">
+			<title xml:lang="ko">기존 문서에 적용</title>
+			<title xml:lang="en">Apply to existing documents</title>
+			<options value="N">
+				<title xml:lang="ko">아니오</title>
+				<title xml:lang="en">No</title>
+			</options>
+			<options value="Y">
+				<title xml:lang="ko">예</title>
+				<title xml:lang="en">Yes</title>
+			</options>
+		</var>
+		<var name="except_domains">
+			<title xml:lang="ko">예외 도메인</title>
+			<title xml:lang="en">Except Domains</title>
+			<description xml:lang="ko">이 도메인의 이미지는 자동 첨부하지 않습니다. 여러 도메인은 쉼표로 구분합니다.</description>
+			<description xml:lang="en">Images from this domain are not automatically attached. Separate entries with a comma.</description>
+		</var>
+	</extra_vars>
+</addon>
