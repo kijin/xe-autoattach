@@ -18,13 +18,12 @@ if (!defined('__XE__')) exit();
  */
 if ($called_position === 'after_module_proc' && preg_match('/^proc[A-Z][a-z0-9_]+Insert(Document|Comment)$/', $this->act, $matches))
 {
-	include_once dirname(__FILE__) . '/autoattach.class.php';
-	XEAutoAttachAddon::setConfig($addon_info);
-	
 	if (strtolower($matches[1]) === 'document')
 	{
 		if ($addon_info->new_documents !== 'N')
 		{
+			include_once dirname(__FILE__) . '/autoattach.class.php';
+			XEAutoAttachAddon::setConfig($addon_info);
 			XEAutoAttachAddon::procDocument($this->get('document_srl'), true);
 		}
 	}
@@ -32,6 +31,8 @@ if ($called_position === 'after_module_proc' && preg_match('/^proc[A-Z][a-z0-9_]
 	{
 		if ($addon_info->new_comments !== 'N')
 		{
+			include_once dirname(__FILE__) . '/autoattach.class.php';
+			XEAutoAttachAddon::setConfig($addon_info);
 			XEAutoAttachAddon::procComment($this->get('comment_srl'), true);
 		}
 	}
