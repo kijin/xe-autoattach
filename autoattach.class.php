@@ -242,9 +242,18 @@ class XEAutoAttachAddon
 		{
 			// Attempt to download the image.
 			$temp_path = _XE_PATH_ . 'files/cache/autoattach/' . md5($image_info['image_url'] . microtime() . mt_rand());
+			$download_start_time = microtime(true);
 			$status = FileHandler::getRemoteFile($image_info['image_url'], $temp_path, null, self::$image_timeout);
-			if (!$status)
+			if (!$status || !file_exists($temp_path) || !filesize($temp_path))
 			{
+				if (microtime(true) - $download_start_time >= self::$image_timeout)
+				{
+					error_log('XE AutoAttach Addon: Download Timeout: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+				}
+				else
+				{
+					error_log('XE AutoAttach Addon: Download Failure: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+				}
 				FileHandler::removeFile($temp_path);
 				continue;
 			}
@@ -261,9 +270,10 @@ class XEAutoAttachAddon
 				'name' => $temp_name,
 				'tmp_name' => $temp_path,
 			), $module_srl, $target_srl, 0, true);
+			FileHandler::removeFile($temp_path);
 			if (!$oFile)
 			{
-				FileHandler::removeFile($temp_path);
+				error_log('XE AutoAttach Addon: Insert Error: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
 				continue;
 			}
 			
