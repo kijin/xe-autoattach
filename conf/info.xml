@@ -50,8 +50,8 @@
 		<var name="except_domains">
 			<title xml:lang="ko">예외 도메인</title>
 			<title xml:lang="en">Except Domains</title>
-			<description xml:lang="ko">이 도메인의 이미지는 자동 첨부하지 않습니다. 여러 도메인은 쉼표로 구분합니다.</description>
-			<description xml:lang="en">Images from this domain are not automatically attached. Separate entries with a comma.</description>
+			<description xml:lang="ko">이 도메인의 이미지는 자동 첨부하지 않습니다. 현재 사이트는 항상 예외로 취급합니다. 여러 도메인 입력시 쉼표로 구분합니다.</description>
+			<description xml:lang="en">Images from this domain are not automatically attached. The current website is always excluded. Separate entries with a comma.</description>
 		</var>
 	</extra_vars>
 </addon>
