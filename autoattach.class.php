@@ -25,6 +25,11 @@ class XEAutoAttachAddon
 	protected static $total_timeout = 20;
 	
 	/**
+	 * Cache to prevent duplicate downloads.
+	 */
+	protected static $url_cache = array();
+	
+	/**
 	 * Set addon configuration.
 	 * 
 	 * @param object $config
@@ -241,6 +246,7 @@ class XEAutoAttachAddon
 	{
 		// Count the time and the number of successful replacements.
 		$start_time = microtime(true);
+		$total_limited = false;
 		$count = 0;
 		$errors = array();
 		
@@ -261,6 +267,22 @@ class XEAutoAttachAddon
 		// Loop over all images.
 		foreach ($images as $image_info)
 		{
+			// If the same image has already been downloaded, reuse the cached version.
+			if (isset(self::$url_cache[$image_info['image_url']]))
+			{
+				$uploaded_filename = self::$url_cache[$image_info['image_url']];
+				$new_tag = str_replace($image_info['image_url_html'], htmlspecialchars($uploaded_filename), $image_info['full_tag']);
+				$content = str_replace($image_info['full_tag'], self::addStatusAttribute($new_tag, 'success'), $content);
+				$errors[] = 'XE AutoAttach Addon: Reusing Cached Image: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
+				continue;
+			}
+			
+			// If the total attachment size limit has already been exceeded, do not try to download more inages.
+			if ($total_limited)
+			{
+				continue;
+			}
+			
 			// Attempt to download the image.
 			$temp_path = _XE_PATH_ . 'files/cache/autoattach/' . md5($image_info['image_url'] . microtime() . mt_rand());
 			$download_start_time = microtime(true);
@@ -302,7 +324,8 @@ class XEAutoAttachAddon
 						$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'size-limit-total'), $content);
 						error_log($errors[] = 'XE AutoAttach Addon: Total Attachment Size Limit Exceeded: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
 						FileHandler::removeFile($temp_path);
-						break;
+						$total_limited = true;
+						continue;
 					}
 				}
 			}
@@ -328,7 +351,7 @@ class XEAutoAttachAddon
 			}
 			
 			// Update the content.
-			$uploaded_filename = $oFile->get('uploaded_filename');
+			self::$url_cache[$image_info['image_url']] = $uploaded_filename = $oFile->get('uploaded_filename');
 			$new_tag = str_replace($image_info['image_url_html'], htmlspecialchars($uploaded_filename), $image_info['full_tag']);
 			$content = str_replace($image_info['full_tag'], self::addStatusAttribute($new_tag, 'success'), $content);
 			$count++;
@@ -357,6 +380,7 @@ class XEAutoAttachAddon
 	protected static function addStatusAttribute($tag, $status)
 	{
 		$status = htmlspecialchars($status, ENT_QUOTES, 'UTF-8');
+		$tag = preg_replace('/\sdata-autoattach="[^"]+?"/', '', $tag);
 		return preg_replace('/^<img\s+/i', '<img data-autoattach="' . $status . '" ', $tag);
 	}
 	
