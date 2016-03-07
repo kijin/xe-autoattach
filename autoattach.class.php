@@ -247,11 +247,13 @@ class XEAutoAttachAddon
 		// Get information about the current module and the author.
 		if (self::$config->apply_module_limit === 'Y')
 		{
+			$logged_info = Context::get('logged_info');
 			$member_info = getModel('member')->getMemberInfoByMemberSrl($member_srl);
 			$module_config = getModel('file')->getFileConfig($module_srl);
 		}
 		else
 		{
+			$logged_info = new stdClass;
 			$member_info = new stdClass;
 			$module_config = new stdClass;
 		}
@@ -282,7 +284,7 @@ class XEAutoAttachAddon
 			// Check the current module's attachment size limit.
 			if (self::$config->apply_module_limit === 'Y')
 			{
-				if ($module_config->allowed_filesize && $member_info->is_admin !== 'Y')
+				if ($module_config->allowed_filesize && $member_info->is_admin !== 'Y' && ($_SERVER['REQUEST_METHOD'] === 'GET' || $logged_info->is_admin !== 'Y'))
 				{
 					if (filesize($temp_path) > $module_config->allowed_filesize * 1024 * 1024)
 					{
@@ -292,7 +294,7 @@ class XEAutoAttachAddon
 						continue;
 					}
 				}
-				if ($module_config->allowed_attach_size && $member_info->is_admin !== 'Y')
+				if ($module_config->allowed_attach_size && $member_info->is_admin !== 'Y' && ($_SERVER['REQUEST_METHOD'] === 'GET' || $logged_info->is_admin !== 'Y'))
 				{
 					$total_size = executeQuery('file.getAttachedFileSize', (object)array('upload_target_srl' => $target_srl));
 					if($total_size->data->attached_size + filesize($temp_path) > $module_config->allowed_attach_size * 1024 * 1024)
