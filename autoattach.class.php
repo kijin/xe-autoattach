@@ -273,7 +273,7 @@ class XEAutoAttachAddon
 				$uploaded_filename = self::$url_cache[$image_info['image_url']];
 				$new_tag = str_replace($image_info['image_url_html'], htmlspecialchars($uploaded_filename), $image_info['full_tag']);
 				$content = str_replace($image_info['full_tag'], self::addStatusAttribute($new_tag, 'success'), $content);
-				$errors[] = 'XE AutoAttach Addon: Reusing Cached Image: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
+				$errors[] = 'Reusing Cached Image: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
 				continue;
 			}
 			
@@ -292,12 +292,12 @@ class XEAutoAttachAddon
 				if (microtime(true) - $download_start_time >= self::$image_timeout)
 				{
 					$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'download-timeout'), $content);
-					error_log($errors[] = 'XE AutoAttach Addon: Download Timeout: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+					$errors[] = 'Download Timeout: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
 				}
 				else
 				{
 					$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'download-failure'), $content);
-					error_log($errors[] = 'XE AutoAttach Addon: Download Failure: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+					$errors[] = 'Download Failure: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
 				}
 				FileHandler::removeFile($temp_path);
 				continue;
@@ -311,7 +311,7 @@ class XEAutoAttachAddon
 					if (filesize($temp_path) > $module_config->allowed_filesize * 1024 * 1024)
 					{
 						$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'size-limit-single'), $content);
-						error_log($errors[] = 'XE AutoAttach Addon: Single Attachment Size Limit Exceeded: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+						$errors[] = 'Single Attachment Size Limit Exceeded: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
 						FileHandler::removeFile($temp_path);
 						continue;
 					}
@@ -322,7 +322,7 @@ class XEAutoAttachAddon
 					if($total_size->data->attached_size + filesize($temp_path) > $module_config->allowed_attach_size * 1024 * 1024)
 					{
 						$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'size-limit-total'), $content);
-						error_log($errors[] = 'XE AutoAttach Addon: Total Attachment Size Limit Exceeded: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+						$errors[] = 'Total Attachment Size Limit Exceeded: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
 						FileHandler::removeFile($temp_path);
 						$total_limited = true;
 						continue;
@@ -346,7 +346,7 @@ class XEAutoAttachAddon
 			if (!$oFile)
 			{
 				$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'insert-error'), $content);
-				error_log($errors[] = 'XE AutoAttach Addon: Insert Error: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+				$errors[] = 'Insert Error: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
 				continue;
 			}
 			
