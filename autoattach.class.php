@@ -60,6 +60,7 @@ class XEAutoAttachAddon
 			$oDocument = (object)array(
 				'document_srl' => $oCachedDocument->get('document_srl'),
 				'module_srl' => $oCachedDocument->get('module_srl'),
+				'member_srl' => $oCachedDocument->get('member_srl'),
 				'content' => $oCachedDocument->get('content'),
 				'uploaded_count' => $oCachedDocument->get('uploaded_count'),
 			);
@@ -75,8 +76,8 @@ class XEAutoAttachAddon
 		$oDB->begin();
 		
 		// Download and replace images.
-		$count = self::replaceImages($content, $images, $oDocument->module_srl, $document_srl);
-		if (!$count) return false;
+		$count = self::replaceImages($content, $images, $oDocument->module_srl, $document_srl, $oDocument->member_srl, $errors);
+		if (!$count && !$errors) return false;
 		
 		// Update the document.
 		$output = executeQuery('addons.autoattach.updateDocument', (object)array(
@@ -130,6 +131,7 @@ class XEAutoAttachAddon
 			$oComment = (object)array(
 				'comment_srl' => $oCachedComment->get('comment_srl'),
 				'module_srl' => $oCachedComment->get('module_srl'),
+				'member_srl' => $oCachedComment->get('member_srl'),
 				'content' => $oCachedComment->get('content'),
 				'uploaded_count' => $oCachedComment->get('uploaded_count'),
 			);
@@ -145,8 +147,8 @@ class XEAutoAttachAddon
 		$oDB->begin();
 		
 		// Download and replace images.
-		$count = self::replaceImages($content, $images, $oComment->module_srl, $comment_srl);
-		if (!$count) return false;
+		$count = self::replaceImages($content, $images, $oComment->module_srl, $comment_srl, $oComment->member_srl, $errors);
+		if (!$count && !$errors) return false;
 		
 		// Update the comment.
 		$output = executeQuery('addons.autoattach.updateComment', (object)array(
@@ -235,12 +237,25 @@ class XEAutoAttachAddon
 	 * @param int $target_srl
 	 * @return bool
 	 */
-	protected static function replaceImages(&$content, $images, $module_srl, $target_srl)
+	protected static function replaceImages(&$content, $images, $module_srl, $target_srl, $member_srl, &$errors)
 	{
 		// Count the time and the number of successful replacements.
 		$start_time = microtime(true);
 		$count = 0;
+		$errors = array();
 		
+		// Get information about the current module and the author.
+		if (self::$config->apply_module_limit === 'Y')
+		{
+			$member_info = getModel('member')->getMemberInfoByMemberSrl($member_srl);
+			$module_config = getModel('file')->getFileConfig($module_srl);
+		}
+		else
+		{
+			$member_info = new stdClass;
+			$module_config = new stdClass;
+		}
+
 		// Loop over all images.
 		foreach ($images as $image_info)
 		{
@@ -253,15 +268,41 @@ class XEAutoAttachAddon
 				if (microtime(true) - $download_start_time >= self::$image_timeout)
 				{
 					$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'download-timeout'), $content);
-					error_log('XE AutoAttach Addon: Download Timeout: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+					error_log($errors[] = 'XE AutoAttach Addon: Download Timeout: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
 				}
 				else
 				{
 					$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'download-failure'), $content);
-					error_log('XE AutoAttach Addon: Download Failure: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+					error_log($errors[] = 'XE AutoAttach Addon: Download Failure: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
 				}
 				FileHandler::removeFile($temp_path);
 				continue;
+			}
+			
+			// Check the current module's attachment size limit.
+			if (self::$config->apply_module_limit === 'Y')
+			{
+				if ($module_config->allowed_filesize && $member_info->is_admin !== 'Y')
+				{
+					if (filesize($temp_path) > $module_config->allowed_filesize * 1024 * 1024)
+					{
+						$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'size-limit-single'), $content);
+						error_log($errors[] = 'XE AutoAttach Addon: Single Attachment Size Limit Exceeded: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+						FileHandler::removeFile($temp_path);
+						continue;
+					}
+				}
+				if ($module_config->allowed_attach_size && $member_info->is_admin !== 'Y')
+				{
+					$total_size = executeQuery('file.getAttachedFileSize', (object)array('upload_target_srl' => $target_srl));
+					if($total_size->data->attached_size + filesize($temp_path) > $module_config->allowed_attach_size * 1024 * 1024)
+					{
+						$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'size-limit-total'), $content);
+						error_log($errors[] = 'XE AutoAttach Addon: Total Attachment Size Limit Exceeded: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+						FileHandler::removeFile($temp_path);
+						break;
+					}
+				}
 			}
 			
 			// Guess the correct filename and extension.
@@ -280,7 +321,7 @@ class XEAutoAttachAddon
 			if (!$oFile)
 			{
 				$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'insert-error'), $content);
-				error_log('XE AutoAttach Addon: Insert Error: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
+				error_log($errors[] = 'XE AutoAttach Addon: Insert Error: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
 				continue;
 			}
 			

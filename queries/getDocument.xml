@@ -5,6 +5,7 @@
     <columns>
     	<column name="document_srl" />
     	<column name="module_srl" />
+    	<column name="member_srl" />
         <column name="content" />
         <column name="uploaded_count" />
     </columns>
