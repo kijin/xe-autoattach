@@ -203,6 +203,10 @@ class XEAutoAttachAddon
 			$result = array();
 			foreach ($matches as $match)
 			{
+				if (strpos($match[0], 'data-autoattach="') !== false)
+				{
+					continue;
+				}
 				$image_url = htmlspecialchars_decode(trim($match[1], '\'"'));
 				if (!preg_match('@^https?://@i', $image_url) || preg_match($except_domains_regexp, $image_url))
 				{
@@ -248,10 +252,12 @@ class XEAutoAttachAddon
 			{
 				if (microtime(true) - $download_start_time >= self::$image_timeout)
 				{
+					$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'download-timeout'), $content);
 					error_log('XE AutoAttach Addon: Download Timeout: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
 				}
 				else
 				{
+					$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'download-failure'), $content);
 					error_log('XE AutoAttach Addon: Download Failure: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
 				}
 				FileHandler::removeFile($temp_path);
@@ -273,6 +279,7 @@ class XEAutoAttachAddon
 			FileHandler::removeFile($temp_path);
 			if (!$oFile)
 			{
+				$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'insert-error'), $content);
 				error_log('XE AutoAttach Addon: Insert Error: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')');
 				continue;
 			}
@@ -280,7 +287,7 @@ class XEAutoAttachAddon
 			// Update the content.
 			$uploaded_filename = $oFile->get('uploaded_filename');
 			$new_tag = str_replace($image_info['image_url_html'], htmlspecialchars($uploaded_filename), $image_info['full_tag']);
-			$content = str_replace($image_info['full_tag'], $new_tag, $content);
+			$content = str_replace($image_info['full_tag'], self::addStatusAttribute($new_tag, 'success'), $content);
 			$count++;
 			
 			// If this is taking too long, stop now and try again later.
@@ -295,6 +302,19 @@ class XEAutoAttachAddon
 		
 		// Return the count.
 		return $count;
+	}
+	
+	/**
+	 * Add a status attribute to an image tag.
+	 * 
+	 * @param string $tag
+	 * @param string $status
+	 * @return string
+	 */
+	protected static function addStatusAttribute($tag, $status)
+	{
+		$status = htmlspecialchars($status, ENT_QUOTES, 'UTF-8');
+		return preg_replace('/^<img\s+/i', '<img data-autoattach="' . $status . '" ', $tag);
 	}
 	
 	/**
