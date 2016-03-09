@@ -205,7 +205,7 @@ class XEAutoAttachAddon
 		$except_domains_regexp = '@^https?://(' . implode('|', $except_domains_regexp) . ')/@i';
 		
 		// Find all images.
-		if (preg_match_all('@<img\s[^>]+?src=(\'[^\']+?\'|"[^"]+?")[^>]+?>@i', $content, $matches, PREG_SET_ORDER))
+		if (preg_match_all('@<img\s[^>]*?src=(\'[^\']+?\'|"[^"]+?"|[^\'"\x20]+?)[^>]*?>@i', $content, $matches, PREG_SET_ORDER))
 		{
 			$result = array();
 			foreach ($matches as $match)
