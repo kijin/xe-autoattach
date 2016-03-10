@@ -1,4 +1,4 @@
-<?php
+t<?php
 
 /**
  * @file autoattach.class.php
@@ -250,6 +250,10 @@ class XEAutoAttachAddon
 		$count = 0;
 		$errors = array();
 		
+		// Ensure that we have enough time.
+		$total_timeout = intval(self::$config->total_timeout ? self::$config->total_timeout : self::$total_timeout);
+		@set_time_limit($total_timeout + 20);
+		
 		// Get information about the current module and the author.
 		if (self::$config->apply_module_limit === 'Y')
 		{
@@ -286,10 +290,11 @@ class XEAutoAttachAddon
 			// Attempt to download the image.
 			$temp_path = _XE_PATH_ . 'files/cache/autoattach/' . md5($image_info['image_url'] . microtime() . mt_rand());
 			$download_start_time = microtime(true);
-			$status = FileHandler::getRemoteFile($image_info['image_url'], $temp_path, null, self::$image_timeout);
+			$image_timeout = intval(self::$config->image_timeout ? self::$config->image_timeout : self::$image_timeout);
+			$status = FileHandler::getRemoteFile($image_info['image_url'], $temp_path, null, $image_timeout);
 			if (!$status || !file_exists($temp_path) || !filesize($temp_path))
 			{
-				if (microtime(true) - $download_start_time >= self::$image_timeout)
+				if (microtime(true) - $download_start_time >= $image_timeout)
 				{
 					$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'download-timeout'), $content);
 					$errors[] = 'Download Timeout: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
@@ -357,7 +362,7 @@ class XEAutoAttachAddon
 			$count++;
 			
 			// If this is taking too long, stop now and try again later.
-			if (microtime(true) - $start_time > self::$total_timeout)
+			if (microtime(true) - $start_time > $total_timeout)
 			{
 				break;
 			}
