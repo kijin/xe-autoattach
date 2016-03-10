@@ -1,4 +1,4 @@
-t<?php
+<?php
 
 /**
  * @file autoattach.class.php
