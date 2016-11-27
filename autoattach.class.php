@@ -291,7 +291,7 @@ class XEAutoAttachAddon
 			$temp_path = _XE_PATH_ . 'files/cache/autoattach/' . md5($image_info['image_url'] . microtime() . mt_rand());
 			$download_start_time = microtime(true);
 			$image_timeout = intval(self::$config->image_timeout ? self::$config->image_timeout : self::$image_timeout);
-			$status = FileHandler::getRemoteFile($image_info['image_url'], $temp_path, null, $image_timeout);
+			$status = FileHandler::getRemoteFile($image_info['image_url'], $temp_path, null, $image_timeout, 'GET', null, array(), array(), array(), array('allowRedirects' => true));
 			if (!$status || !file_exists($temp_path) || !filesize($temp_path))
 			{
 				if (microtime(true) - $download_start_time >= $image_timeout)
