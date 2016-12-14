@@ -59,6 +59,18 @@
 				<title xml:lang="en">Yes</title>
 			</options>
 		</var>
+		<var name="allow_animated_gif" type="select">
+			<title xml:lang="ko">움직이는 GIF 첨부 허용</title>
+			<title xml:lang="en">Allow animated GIF files</title>
+			<options value="Y">
+				<title xml:lang="ko">예</title>
+				<title xml:lang="en">Yes</title>
+			</options>
+			<options value="N">
+				<title xml:lang="ko">아니오</title>
+				<title xml:lang="en">No</title>
+			</options>
+		</var>
 		<var name="image_timeout">
 			<title xml:lang="ko">이미지당 타임아웃</title>
 			<title xml:lang="en">Timeout per image</title>

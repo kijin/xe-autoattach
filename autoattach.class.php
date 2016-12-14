@@ -335,6 +335,18 @@ class XEAutoAttachAddon
 				}
 			}
 			
+			// Check if the current image is an animated GIF.
+			if (self::$config->allow_animated_gif === 'N')
+			{
+				if (self::isAnimatedGIF($temp_path))
+				{
+					$content = str_replace($image_info['full_tag'], self::addStatusAttribute($image_info['full_tag'], 'animated-gif'), $content);
+					$errors[] = 'Animated GIF not allowed: ' . $image_info['image_url'] . ' (target: ' . $target_srl . ')';
+					FileHandler::removeFile($temp_path);
+					continue;
+				}
+			}
+			
 			// Guess the correct filename and extension.
 			$temp_name = self::cleanFilename($image_info['image_url']);
 			if (preg_match('/^[0-9a-f]{32}$/', $temp_name))
@@ -427,5 +439,32 @@ class XEAutoAttachAddon
 			case 'image/x-ms-bmp': return 'bmp';
 			default: return $default;
 		}
+	}
+	
+	/**
+	 * Check if a file is an animated GIF.
+	 * 
+	 * @param string $filename
+	 * @return bool
+	 */
+	protected static function isAnimatedGIF($filename)
+	{
+		$image_info = @getimagesize($filename);
+		if (!$image_info || $image_info['mime'] !== 'image/gif')
+		{
+			return false;
+		}
+		
+		$count = 0;
+		if ($fp = @fopen($filename, 'rb'))
+		{
+			while (!feof($fp) && $count < 2)
+			{
+				$count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00[\x2C\x21]#s', fread($fp, 1024 * 16) ?: '');
+				fseek($fp, max(0, ftell($fp) - 16));
+			}
+			fclose($fp);
+		}
+		return $count > 1;
 	}
 }
