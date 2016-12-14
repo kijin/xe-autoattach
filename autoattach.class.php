@@ -21,7 +21,7 @@ class XEAutoAttachAddon
 	/**
 	 * Set the timeout for remote requests.
 	 */
-	protected static $image_timeout = 2;
+	protected static $image_timeout = 4;
 	protected static $total_timeout = 20;
 	
 	/**

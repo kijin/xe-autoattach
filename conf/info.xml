@@ -74,8 +74,8 @@
 		<var name="image_timeout">
 			<title xml:lang="ko">이미지당 타임아웃</title>
 			<title xml:lang="en">Timeout per image</title>
-			<description xml:lang="ko">초 (기본값: 2초)</description>
-			<description xml:lang="en">seconds (default: 2s)</description>
+			<description xml:lang="ko">초 (기본값: 4초)</description>
+			<description xml:lang="en">seconds (default: 4s)</description>
 		</var>
 		<var name="total_timeout">
 			<title xml:lang="ko">전체 타임아웃</title>
