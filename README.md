@@ -34,6 +34,7 @@ SSL을 적용한 사이트에서 SSL을 적용하지 않은 이미지를 불러�
   - `size-limit-single` : 개별 파일 용량 제한 초과
   - `size-limit-total` : 첨부파일 용량 합계 제한 초과
   - `insert-error` : 첨부파일 정보를 DB에 저장하는 도중 에러 발생
+  - `animated-gif` : 움직이는 GIF 첨부가 금지된 사이트임
 
 ### 라이선스
 
