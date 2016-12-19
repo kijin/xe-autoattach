@@ -58,6 +58,8 @@
 				<title xml:lang="ko">예</title>
 				<title xml:lang="en">Yes</title>
 			</options>
+			<description xml:lang="ko">주의: 계속 오류가 발생하여 여러 번 재시도하게 되면 서버에 과부하가 걸리거나 많은 트래픽이 발생할 수 있습니다.</description>
+			<description xml:lang="en">Caution: retrying too much because of errors may slow down your site or cause excessive traffic.</description>
 		</var>
 		<var name="apply_module_limit" type="select">
 			<title xml:lang="ko">모듈별 첨부용량 제한 적용</title>
