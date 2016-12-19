@@ -47,6 +47,18 @@
 				<title xml:lang="en">Yes</title>
 			</options>
 		</var>
+		<var name="retry_download" type="select">
+			<title xml:lang="ko">다운로드 실패시 재시도</title>
+			<title xml:lang="en">Retry failed downloads</title>
+			<options value="N">
+				<title xml:lang="ko">아니오</title>
+				<title xml:lang="en">No</title>
+			</options>
+			<options value="Y">
+				<title xml:lang="ko">예</title>
+				<title xml:lang="en">Yes</title>
+			</options>
+		</var>
 		<var name="apply_module_limit" type="select">
 			<title xml:lang="ko">모듈별 첨부용량 제한 적용</title>
 			<title xml:lang="en">Use each module's attachment size limit</title>

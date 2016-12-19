@@ -212,7 +212,10 @@ class XEAutoAttachAddon
 			{
 				if (strpos($match[0], 'data-autoattach="') !== false)
 				{
-					continue;
+					if (self::$config->retry_download !== 'Y' || strpos($match[0], 'data-autoattach="download-failure"') === false)
+					{
+						continue;
+					}
 				}
 				$image_url = htmlspecialchars_decode(trim($match[1], '\'"'));
 				if (!preg_match('@^https?://@i', $image_url) || preg_match($except_domains_regexp, $image_url))
