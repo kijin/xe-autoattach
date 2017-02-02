@@ -6,10 +6,10 @@
     <description xml:lang="en">Automatically attach images referenced in documents and comments.</description>
     <version>1.1.2</version>
     <date>2016-12-19</date>
-    <author email_address="kijin@kijinsung.com" link="https://github.com/kijin">
-        <name xml:lang="ko">Kijin Sung</name>
-        <name xml:lang="en">Kijin Sung</name>
-    </author>
+	<author link="https://www.poesis.org">
+		<name xml:lang="ko">포에시스</name>
+		<name xml:lang="en">POESIS</name>
+	</author>
     <extra_vars>
 		<var name="new_documents" type="select">
 			<title xml:lang="ko">새 문서에 적용</title>
