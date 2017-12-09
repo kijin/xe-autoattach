@@ -298,6 +298,7 @@ class XEAutoAttachAddon
 			$image_timeout = intval(self::$config->image_timeout ? self::$config->image_timeout : self::$image_timeout);
 			$redirect_settings = array('follow_redirects' => true, 'max_redirects' => 2);
 			$status = FileHandler::getRemoteFile($image_info['image_url'], $temp_path, null, $image_timeout, 'GET', null, array(), array(), array(), $redirect_settings);
+			clearstatcache($temp_path);
 			if (!$status || !file_exists($temp_path) || !filesize($temp_path))
 			{
 				if (microtime(true) - $download_start_time >= $image_timeout)
